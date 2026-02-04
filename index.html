@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Sound - Ambient Sounds Based on Your Weather</title>
+    <meta name="description" content="Automatically play relaxing ambient sounds that match your local weather. Rain, wind, thunder, birds, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            transition: background 1s ease;
+        }
+
+        /* Weather-based backgrounds */
+        body.sunny {
+            background: linear-gradient(135deg, #56CCF2 0%, #2F80ED 50%, #1a1a2e 100%);
+        }
+        body.cloudy {
+            background: linear-gradient(135deg, #606c88 0%, #3f4c6b 50%, #1a1a2e 100%);
+        }
+        body.rainy {
+            background: linear-gradient(135deg, #373B44 0%, #4286f4 50%, #1a1a2e 100%);
+        }
+        body.stormy {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2c3e50 50%, #0f0f1a 100%);
+        }
+        body.snowy {
+            background: linear-gradient(135deg, #E0EAFC 0%, #CFDEF3 50%, #8e9eab 100%);
+            color: #333;
+        }
+        body.night {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        }
+        body.default {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 30px 0 10px;
+            font-size: 2rem;
+            color: #fff;
+        }
+
+        body.snowy h1 { color: #333; }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 30px;
+        }
+
+        body.snowy .subtitle { color: #666; }
+
+        /* Weather card */
+        .weather-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        body.snowy .weather-card {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .weather-icon {
+            font-size: 5rem;
+            margin-bottom: 10px;
+        }
+
+        .temperature {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .location {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .condition {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: capitalize;
+        }
+
+        /* Now playing */
+        .now-playing {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        body.snowy .now-playing {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .now-playing h3 {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sound-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sound-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.snowy .control-btn {
+            background: rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .control-btn.play {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .control-btn.playing {
+            background: #4ECDC4;
+        }
+
+        /* Volume */
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            color: #fff;
+        }
+
+        body.snowy .volume-control { color: #333; }
+
+        .volume-slider {
+            width: 150px;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* Sound picker */
+        .sound-picker {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            color: #fff;
+        }
+
+        body.snowy .sound-picker {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .sound-picker h3 {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .sound-option {
+            padding: 15px 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        body.snowy .sound-option {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        .sound-option:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .sound-option.active {
+            background: rgba(78, 205, 196, 0.3);
+            border-color: #4ECDC4;
+        }
+
+        .sound-option .icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .sound-option .name {
+            font-size: 0.8rem;
+        }
+
+        /* Loading/error states */
+        .status-msg {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        body.snowy .status-msg { color: #666; }
+
+        .get-location-btn {
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: #4ECDC4;
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.2s;
+        }
+
+        .get-location-btn:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+        }
+
+        body.snowy footer { color: #999; }
+
+        /* Visualizer */
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 4px;
+            height: 40px;
+            margin: 15px 0;
+        }
+
+        .bar {
+            width: 4px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 2px;
+            transition: height 0.1s;
+        }
+
+        body.snowy .bar { background: rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body class="default">
+    <div class="container">
+        <h1>🌤️ Weather Sound</h1>
+        <p class="subtitle">Ambient sounds that match your weather</p>
+
+        <div id="content">
+            <div class="status-msg">
+                <p>Allow location access to hear sounds matching your weather</p>
+                <button class="get-location-btn" onclick="getWeather()">📍 Get My Weather</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>No data stored • Uses Open-Meteo API</p>
+        </footer>
+    </div>
+
+    <script>
+        // Sound definitions with URLs to royalty-free sounds
+        // Using sine wave oscillators as fallback since we can't include actual audio files
+        const sounds = {
+            rain: { icon: '🌧️', name: 'Rain', freq: 180 },
+            thunder: { icon: '⛈️', name: 'Thunder', freq: 60 },
+            wind: { icon: '💨', name: 'Wind', freq: 120 },
+            birds: { icon: '🐦', name: 'Birds', freq: 800 },
+            crickets: { icon: '🦗', name: 'Crickets', freq: 4000 },
+            ocean: { icon: '🌊', name: 'Ocean', freq: 150 },
+            fire: { icon: '🔥', name: 'Fire', freq: 300 },
+            forest: { icon: '🌲', name: 'Forest', freq: 500 },
+            snow: { icon: '❄️', name: 'Snow', freq: 200 }
+        };
+
+        let audioContext = null;
+        let noiseNode = null;
+        let gainNode = null;
+        let filterNode = null;
+        let isPlaying = false;
+        let currentSound = 'rain';
+        let weatherData = null;
+
+        // Get weather from Open-Meteo (free, no API key needed)
+        async function getWeather() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="status-msg"><p>🔍 Getting your location...</p></div>';
+
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        timeout: 10000,
+                        enableHighAccuracy: false
+                    });
+                });
+
+                const { latitude, longitude } = position.coords;
+
+                content.innerHTML = '<div class="status-msg"><p>☁️ Fetching weather...</p></div>';
+
+                // Use Open-Meteo free weather API
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code,wind_speed_10m,is_day&timezone=auto`
+                );
+
+                const data = await response.json();
+                weatherData = data;
+
+                // Get location name via reverse geocoding
+                const geoResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                );
+                const geoData = await geoResponse.json();
+                const locationName = geoData.address?.city || geoData.address?.town || geoData.address?.county || 'Your Location';
+
+                displayWeather(data.current, locationName);
+
+            } catch (error) {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div class="status-msg">
+                        <p>⚠️ Could not get weather. Please allow location access.</p>
+                        <button class="get-location-btn" onclick="getWeather()">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+
+        function getWeatherEmoji(code, isDay) {
+            // WMO Weather codes
+            if (code === 0) return isDay ? '☀️' : '🌙';
+            if (code <= 3) return isDay ? '⛅' : '☁️';
+            if (code <= 49) return '🌫️';
+            if (code <= 69) return '🌧️';
+            if (code <= 79) return '🌨️';
+            if (code <= 82) return '🌧️';
+            if (code <= 86) return '🌨️';
+            if (code >= 95) return '⛈️';
+            return '🌤️';
+        }
+
+        function getWeatherCondition(code) {
+            if (code === 0) return 'Clear sky';
+            if (code <= 3) return 'Partly cloudy';
+            if (code <= 49) return 'Foggy';
+            if (code <= 55) return 'Drizzle';
+            if (code <= 65) return 'Rain';
+            if (code <= 67) return 'Freezing rain';
+            if (code <= 75) return 'Snow';
+            if (code <= 77) return 'Snow grains';
+            if (code <= 82) return 'Rain showers';
+            if (code <= 86) return 'Snow showers';
+            if (code >= 95) return 'Thunderstorm';
+            return 'Unknown';
+        }
+
+        function getBodyClass(code, isDay) {
+            if (code >= 95) return 'stormy';
+            if (code >= 71 && code <= 86) return 'snowy';
+            if (code >= 51 && code <= 67) return 'rainy';
+            if (code >= 45 && code <= 49) return 'cloudy';
+            if (!isDay) return 'night';
+            if (code === 0) return 'sunny';
+            return 'cloudy';
+        }
+
+        function selectSoundForWeather(code, isDay, windSpeed) {
+            // Thunderstorm
+            if (code >= 95) return 'thunder';
+            // Snow
+            if (code >= 71 && code <= 86) return 'snow';
+            // Rain
+            if (code >= 51 && code <= 67) return 'rain';
+            // Fog
+            if (code >= 45 && code <= 49) return 'forest';
+            // Windy
+            if (windSpeed > 20) return 'wind';
+            // Night
+            if (!isDay) return 'crickets';
+            // Clear day
+            if (code === 0) return 'birds';
+            // Cloudy
+            return 'wind';
+        }
+
+        function displayWeather(current, location) {
+            const weatherCode = current.weather_code;
+            const isDay = current.is_day === 1;
+            const temp = Math.round(current.temperature_2m);
+            const wind = current.wind_speed_10m;
+
+            // Set background
+            document.body.className = getBodyClass(weatherCode, isDay);
+
+            // Select appropriate sound
+            currentSound = selectSoundForWeather(weatherCode, isDay, wind);
+
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="weather-card">
+                    <div class="weather-icon">${getWeatherEmoji(weatherCode, isDay)}</div>
+                    <div class="temperature">${temp}°C</div>
+                    <div class="location">${location}</div>
+                    <div class="condition">${getWeatherCondition(weatherCode)}</div>
+                </div>
+
+                <div class="now-playing">
+                    <h3>Now Playing</h3>
+                    <div class="sound-name">
+                        <span class="sound-icon">${sounds[currentSound].icon}</span>
+                        <span id="current-sound-name">${sounds[currentSound].name}</span>
+                    </div>
+                    <div class="visualizer" id="visualizer">
+                        ${Array(20).fill('<div class="bar" style="height: 5px"></div>').join('')}
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" onclick="skipPrev()">⏮️</button>
+                    <button class="control-btn play" id="play-btn" onclick="togglePlay()">▶️</button>
+                    <button class="control-btn" onclick="skipNext()">⏭️</button>
+                </div>
+
+                <div class="volume-control">
+                    <span>🔈</span>
+                    <input type="range" class="volume-slider" min="0" max="100" value="50" onchange="setVolume(this.value)">
+                    <span>🔊</span>
+                </div>
+
+                <div class="sound-picker">
+                    <h3>Or pick a sound</h3>
+                    <div class="sound-grid">
+                        ${Object.entries(sounds).map(([key, sound]) => `
+                            <div class="sound-option ${key === currentSound ? 'active' : ''}" onclick="selectSound('${key}')">
+                                <div class="icon">${sound.icon}</div>
+                                <div class="name">${sound.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopSound();
+            } else {
+                playSound();
+            }
+        }
+
+        function playSound() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Create noise generator
+            const bufferSize = 2 * audioContext.sampleRate;
+            const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+
+            // Generate colored noise based on sound type
+            const sound = sounds[currentSound];
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = (Math.random() * 2 - 1);
+            }
+
+            noiseNode = audioContext.createBufferSource();
+            noiseNode.buffer = noiseBuffer;
+            noiseNode.loop = true;
+
+            // Filter for different sound characteristics
+            filterNode = audioContext.createBiquadFilter();
+            filterNode.type = 'lowpass';
+            filterNode.frequency.value = sound.freq;
+            filterNode.Q.value = 1;
+
+            gainNode = audioContext.createGain();
+            gainNode.gain.value = 0.3;
+
+            noiseNode.connect(filterNode);
+            filterNode.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            noiseNode.start();
+            isPlaying = true;
+
+            document.getElementById('play-btn').textContent = '⏸️';
+            document.getElementById('play-btn').classList.add('playing');
+            
+            animateVisualizer();
+        }
+
+        function stopSound() {
+            if (noiseNode) {
+                noiseNode.stop();
+                noiseNode.disconnect();
+            }
+            isPlaying = false;
+            document.getElementById('play-btn').textContent = '▶️';
+            document.getElementById('play-btn').classList.remove('playing');
+            
+            // Reset visualizer
+            document.querySelectorAll('.bar').forEach(bar => {
+                bar.style.height = '5px';
+            });
+        }
+
+        function selectSound(key) {
+            const wasPlaying = isPlaying;
+            if (isPlaying) stopSound();
+            
+            currentSound = key;
+            
+            // Update UI
+            document.querySelectorAll('.sound-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[onclick="selectSound('${key}')"]`).classList.add('active');
+            document.getElementById('current-sound-name').textContent = sounds[key].name;
+            document.querySelector('.sound-icon').textContent = sounds[key].icon;
+            
+            if (wasPlaying) playSound();
+        }
+
+        function setVolume(value) {
+            if (gainNode) {
+                gainNode.gain.value = value / 100 * 0.5;
+            }
+        }
+
+        function skipNext() {
+            const keys = Object.keys(sounds);
+            const currentIndex = keys.indexOf(currentSound);
+            const nextIndex = (currentIndex + 1) % keys.length;
+            selectSound(keys[nextIndex]);
+        }
+
+        function skipPrev() {
+            const keys = Object.keys(sounds);
+            const currentIndex = keys.indexOf(currentSound);
+            const prevIndex = (currentIndex - 1 + keys.length) % keys.length;
+            selectSound(keys[prevIndex]);
+        }
+
+        function animateVisualizer() {
+            if (!isPlaying) return;
+            
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                const height = 5 + Math.random() * 30;
+                bar.style.height = height + 'px';
+            });
+            
+            requestAnimationFrame(() => {
+                setTimeout(animateVisualizer, 100);
+            });
+        }
+
+        // Check for geolocation support
+        if (!navigator.geolocation) {
+            document.getElementById('content').innerHTML = `
+                <div class="status-msg">
+                    <p>⚠️ Geolocation is not supported by your browser</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
