@@ -1,0 +1,21 @@
+{
+  "name": "Weather Sound",
+  "short_name": "WeatherSound",
+  "description": "Ambient sounds that match your local weather - let the weather set the mood",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1a1a2e",
+  "theme_color": "#4a90d9",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["weather", "lifestyle", "music"],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

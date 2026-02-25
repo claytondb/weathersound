@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90d9"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="cloud" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#e0e0e0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background sky -->
+  <rect width="64" height="64" rx="12" fill="url(#sky)"/>
+  
+  <!-- Sun behind cloud -->
+  <circle cx="42" cy="20" r="10" fill="#ffd700" opacity="0.9"/>
+  <circle cx="42" cy="20" r="7" fill="#ffeb3b"/>
+  
+  <!-- Cloud -->
+  <ellipse cx="28" cy="26" rx="12" ry="8" fill="url(#cloud)"/>
+  <ellipse cx="38" cy="28" rx="10" ry="7" fill="url(#cloud)"/>
+  <ellipse cx="22" cy="28" rx="8" ry="6" fill="url(#cloud)"/>
+  
+  <!-- Sound waves -->
+  <path d="M16 42 Q20 38 24 42 Q28 46 32 42 Q36 38 40 42 Q44 46 48 42" 
+        stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M12 50 Q18 44 24 50 Q30 56 36 50 Q42 44 48 50 Q54 56 52 50" 
+        stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Rain drops -->
+  <line x1="20" y1="34" x2="18" y2="38" stroke="rgba(100,180,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+  <line x1="30" y1="36" x2="28" y2="40" stroke="rgba(100,180,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+  <line x1="40" y1="34" x2="38" y2="38" stroke="rgba(100,180,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+</svg>
